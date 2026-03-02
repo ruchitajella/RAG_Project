@@ -98,58 +98,58 @@ retriever = vectordb.as_retriever(
 
 print("Retriever Initialized")
 
-# def retrieve_context(query):
-#     docs = retriever.get_relevant_documents(query)
+def retrieve_context(query):
+    docs = retriever.get_relevant_documents(query)
 
-#     context = "\n\n".join([doc.page_content for doc in docs])
+    context = "\n\n".join([doc.page_content for doc in docs])
 
-#     return context, docs
+    return context, docs
 
-# def build_prompt(context, question):
+def build_prompt(context, question):
 
-#     prompt = f"""
-# You are a research assistant.
+    prompt = f"""
+You are a research assistant.
 
-# Answer the question using ONLY the provided context.
-# If the answer is not present in the context, say:
-# "I could not find the answer in the provided documents."
+Answer the question using ONLY the provided context.
+If the answer is not present in the context, say:
+"I could not find the answer in the provided documents."
 
-# Context:
-# {context}
+Context:
+{context}
 
-# Question:
-# {question}
+Question:
+{question}
 
-# Answer:
-# """
+Answer:
+"""
 
-#     return prompt
+    return prompt
 
-# def generate_answer(question):
+def generate_answer(question):
 
-#     context, docs = retrieve_context(question)
+    context, docs = retrieve_context(question)
 
-#     prompt = build_prompt(context, question)
+    prompt = build_prompt(context, question)
 
-#     response = model.invoke(prompt)
+    response = model.invoke(prompt)
 
-#     return response.content, docs
+    return response.content, docs
 
-# while True:
+while True:
 
-#     query = input("\nEnter your question (type 'exit' to quit): ")
+    query = input("\nEnter your question (type 'exit' to quit): ")
 
-#     if query.lower() == "exit":
-#         break
+    if query.lower() == "exit":
+        break
 
-#     answer, sources = generate_answer(query)
+    answer, sources = generate_answer(query)
 
-#     print("\nAnswer:\n")
-#     print(answer)
+    print("\nAnswer:\n")
+    print(answer)
 
-#     print("\nSources Used:\n")
+    print("\nSources Used:\n")
 
-#     for i, doc in enumerate(sources):
-#         print(f"Source {i+1}")
-#         print(doc.page_content[:200])
-#         print("----------------------")
+    for i, doc in enumerate(sources):
+        print(f"Source {i+1}")
+        print(doc.page_content[:200])
+        print("----------------------")
