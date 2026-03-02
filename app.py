@@ -9,9 +9,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 
-# -----------------------
 # Startup Cleanup
-# -----------------------
 
 def startup_cleanup():
     if os.path.exists("chroma_db"):
@@ -19,9 +17,7 @@ def startup_cleanup():
 
 startup_cleanup()
 
-# -----------------------
 # Load Environment
-# -----------------------
 
 load_dotenv()
 groq_api_key = os.getenv("Groq_API_KEY")
@@ -33,9 +29,7 @@ model = ChatGroq(
 
 print("LLM Initialized Successfully")
 
-# -----------------------
 # Loaders
-# -----------------------
 
 def load_all_files():
     loader = DirectoryLoader(
@@ -45,9 +39,7 @@ def load_all_files():
     )
     return loader.load()
 
-# -----------------------
 # Chunking
-# -----------------------
 
 def split_docs(documents):
     splitter = RecursiveCharacterTextSplitter(
@@ -56,27 +48,21 @@ def split_docs(documents):
     )
     return splitter.split_documents(documents)
 
-# -----------------------
 # Metadata Cleaning
-# -----------------------
 
 def clean_metadata(docs):
     for d in docs:
         d.metadata = {}
     return docs
 
-# -----------------------
 # Embeddings
-# -----------------------
 
 def get_embeddings():
     return HuggingFaceEmbeddings(
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
 
-# -----------------------
 # Vector DB
-# -----------------------
 
 def create_vector_db(chunks, embeddings, collection_name):
     vectordb = Chroma.from_documents(
@@ -88,9 +74,7 @@ def create_vector_db(chunks, embeddings, collection_name):
     vectordb.persist()
     return vectordb
 
-# -----------------------
 # Build Pipeline
-# -----------------------
 
 documents = load_all_files()
 documents = clean_metadata(documents)
@@ -105,3 +89,67 @@ vectordb = create_vector_db(chunks, embeddings, collection_name)
 
 print("Vector Database Built Successfully")
 
+# Retriever
+
+retriever = vectordb.as_retriever(
+    search_type="similarity",
+    search_kwargs={"k": 3}
+)
+
+print("Retriever Initialized")
+
+# def retrieve_context(query):
+#     docs = retriever.get_relevant_documents(query)
+
+#     context = "\n\n".join([doc.page_content for doc in docs])
+
+#     return context, docs
+
+# def build_prompt(context, question):
+
+#     prompt = f"""
+# You are a research assistant.
+
+# Answer the question using ONLY the provided context.
+# If the answer is not present in the context, say:
+# "I could not find the answer in the provided documents."
+
+# Context:
+# {context}
+
+# Question:
+# {question}
+
+# Answer:
+# """
+
+#     return prompt
+
+# def generate_answer(question):
+
+#     context, docs = retrieve_context(question)
+
+#     prompt = build_prompt(context, question)
+
+#     response = model.invoke(prompt)
+
+#     return response.content, docs
+
+# while True:
+
+#     query = input("\nEnter your question (type 'exit' to quit): ")
+
+#     if query.lower() == "exit":
+#         break
+
+#     answer, sources = generate_answer(query)
+
+#     print("\nAnswer:\n")
+#     print(answer)
+
+#     print("\nSources Used:\n")
+
+#     for i, doc in enumerate(sources):
+#         print(f"Source {i+1}")
+#         print(doc.page_content[:200])
+#         print("----------------------")
